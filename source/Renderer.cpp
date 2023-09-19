@@ -27,7 +27,7 @@ void Renderer::Render(Scene* pScene) const
 {
 	Camera& camera = pScene->GetCamera();
 	auto& materials = pScene->GetMaterials();
-	auto& lights = pScene->GetLights();
+	auto& lights = pScene->GetLights();	
 
 	for (int px{}; px < m_Width; ++px)
 	{
