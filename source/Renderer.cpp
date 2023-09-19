@@ -44,15 +44,12 @@ void Renderer::Render(Scene* pScene) const
 			rayDir.Normalize();
 			Ray ray{ camera.origin, rayDir };
 
-			Sphere testSphere{ { 0.0f, 0.0f, 100.f }, 50.f, 0 };
-
 			HitRecord closestHit{};
-			GeometryUtils::HitTest_Sphere(testSphere, ray, closestHit);
+			pScene->GetClosestHit(ray, closestHit);
 
 			if (closestHit.didHit)
 			{
-				const float scaledT{ (closestHit.t - 50.f) / 40.f };
-				finalColor = { scaledT, scaledT, scaledT };
+				finalColor = materials[closestHit.materialIndex]->Shade();
 			}
 
 			//Update Color in Buffer

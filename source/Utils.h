@@ -20,16 +20,18 @@ namespace dae
 
 			float discriminant{ b * b - 4 * a * c };
 
-			if (discriminant <= 0)
-			{
-				return false;
-			}
+			if (discriminant <= 0) return false;
 
+
+			float t{ (-1 * b - sqrtf(discriminant)) / 2 * a };
+
+			if (t <= ray.min || t > ray.max) return false;
+
+			hitRecord.t = t;
 			hitRecord.didHit = true;
-
-			hitRecord.t = (-1 * b - sqrtf(discriminant)) / 2 * a;
 			hitRecord.origin = ray.origin + hitRecord.t * ray.direction;
 			hitRecord.normal = (hitRecord.origin - sphere.origin).Normalized();
+			hitRecord.materialIndex = sphere.materialIndex;
 			return true;
 		}
 
@@ -43,9 +45,20 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W1
-			assert(false && "No Implemented Yet!");
-			return false;
+			float denom{ Vector3::Dot(plane.normal, ray.direction) };
+			float t{ Vector3::Dot(plane.origin - ray.origin, plane.normal) / denom };
+
+			if (t <= ray.min || t > ray.max)
+			{
+				return false;
+			}
+
+			hitRecord.t = t;
+			hitRecord.didHit = true;
+			hitRecord.origin = ray.origin + t * ray.direction;
+			hitRecord.normal = plane.normal;
+			hitRecord.materialIndex = plane.materialIndex;
+			return true;
 		}
 
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray)
