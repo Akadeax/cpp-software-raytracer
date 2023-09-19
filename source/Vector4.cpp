@@ -4,11 +4,19 @@
 
 #include "Vector3.h"
 #include <cmath>
+#include <sstream>
 
 namespace dae
 {
 	Vector4::Vector4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) {}
 	Vector4::Vector4(const Vector3& v, float _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
+
+	std::string Vector4::ToString() const
+	{
+		std::stringstream ss;
+		ss << "[" << x << ", " << y << ", " << z << ", " << w << "]";
+		return ss.str();
+	}
 
 	float Vector4::Magnitude() const
 	{
@@ -39,9 +47,7 @@ namespace dae
 
 	float Vector4::Dot(const Vector4& v1, const Vector4& v2)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
 	}
 
 #pragma region Operator Overloads

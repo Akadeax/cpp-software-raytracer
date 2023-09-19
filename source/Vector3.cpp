@@ -4,6 +4,7 @@
 
 #include "Vector4.h"
 #include <cmath>
+#include <sstream>
 
 namespace dae {
 	const Vector3 Vector3::UnitX = Vector3{ 1, 0, 0 };
@@ -14,6 +15,13 @@ namespace dae {
 	Vector3::Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z){}
 
 	Vector3::Vector3(const Vector4& v) : x(v.x), y(v.y), z(v.z){}
+
+	std::string Vector3::ToString() const
+	{
+		std::stringstream ss;
+		ss << "[" << x << ", " << y << ", " << z << "]";
+		return ss.str();
+	}
 
 	Vector3::Vector3(const Vector3& from, const Vector3& to) : x(to.x - from.x), y(to.y - from.y), z(to.z - from.z){}
 
@@ -45,16 +53,16 @@ namespace dae {
 
 	float Vector3::Dot(const Vector3& v1, const Vector3& v2)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 
 	Vector3 Vector3::Cross(const Vector3& v1, const Vector3& v2)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		return Vector3(
+			v1.y * v2.z - v1.z * v2.y,
+			v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x
+		);
 	}
 
 	Vector3 Vector3::Project(const Vector3& v1, const Vector3& v2)

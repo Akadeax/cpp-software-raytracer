@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace dae
 {
@@ -13,6 +14,8 @@ namespace dae
 		Vector4() = default;
 		Vector4(float _x, float _y, float _z, float _w);
 		Vector4(const Vector3& v, float _w);
+
+		std::string ToString() const;
 
 		float Magnitude() const;
 		float SqrMagnitude() const;
