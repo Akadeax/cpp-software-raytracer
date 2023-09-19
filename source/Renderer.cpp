@@ -51,7 +51,8 @@ void Renderer::Render(Scene* pScene) const
 
 			if (closestHit.didHit)
 			{
-				finalColor = materials[closestHit.materialIndex]->Shade();
+				const float scaledT{ (closestHit.t - 50.f) / 40.f };
+				finalColor = { scaledT, scaledT, scaledT };
 			}
 
 			//Update Color in Buffer
