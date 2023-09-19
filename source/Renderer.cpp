@@ -33,21 +33,33 @@ void Renderer::Render(Scene* pScene) const
 	{
 		for (int py{}; py < m_Height; ++py)
 		{
+			ColorRGB finalColor{};
+
 			float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 			
-
 			float cameraX{ (2 * (px + 0.5f) / m_Width - 1) * aspectRatio };
 			float cameraY{ 1 - (2 * (py + 0.5f) / m_Height)};
 			
 			Vector3 rayDir{ camera.forward + (camera.right * cameraX) + (camera.up * cameraY) };
 			rayDir.Normalize();
-
 			Ray ray{ camera.origin, rayDir };
 
+			Sphere testSphere{ { 0.0f, 0.0f, 100.f }, 50.f, 0 };
+
+			HitRecord closestHit{};
+			GeometryUtils::HitTest_Sphere(testSphere, ray, closestHit);
+
+			if (closestHit.didHit)
+			{
+				finalColor = materials[closestHit.materialIndex]->Shade();
+			}
+
+			//Update Color in Buffer
+			finalColor.MaxToOne();
 			m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,
-				static_cast<uint8_t>(rayDir.x * 255),
-				static_cast<uint8_t>(rayDir.y * 255),
-				static_cast<uint8_t>(rayDir.z * 255)
+				static_cast<uint8_t>(finalColor.r * 255),
+				static_cast<uint8_t>(finalColor.g * 255),
+				static_cast<uint8_t>(finalColor.b * 255)
 			);
 		}
 	}
