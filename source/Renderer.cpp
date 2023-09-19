@@ -45,11 +45,14 @@ void Renderer::Render(Scene* pScene) const
 			Ray ray{ camera.origin, rayDir };
 
 			HitRecord closestHit{};
-			pScene->GetClosestHit(ray, closestHit);
+			Plane testPlane{ { 0.f, -50.f, 0.f }, {0.f, 1.f, 0.f }, 0 };
+			GeometryUtils::HitTest_Plane(testPlane, ray, closestHit);
+			//pScene->GetClosestHit(ray, closestHit);
 
 			if (closestHit.didHit)
 			{
-				finalColor = materials[closestHit.materialIndex]->Shade();
+				const float scaledT{ closestHit.t / 500.f };
+				finalColor = { scaledT, scaledT, scaledT };
 			}
 
 			//Update Color in Buffer
