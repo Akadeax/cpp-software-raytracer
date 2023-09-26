@@ -46,6 +46,9 @@ void Renderer::Render(Scene* pScene) const
 
 			Vector3 rayDir{ camera.forward + (camera.right * cameraX) + (camera.up * cameraY) };
 			rayDir.Normalize();
+
+			rayDir = camera.CalculateCameraToWorld().TransformVector(rayDir);
+
 			// Shoot ray from camera in pixel direction
 			Ray ray{ camera.origin, rayDir };
 

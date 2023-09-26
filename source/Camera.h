@@ -22,7 +22,7 @@ namespace dae
 		Vector3 origin{};
 		float fovAngle{ 90.f };
 
-		Vector3 forward{Vector3::UnitZ};
+		Vector3 forward{ 0.266f, -0.453f, 0.860f };
 		Vector3 up{Vector3::UnitY};
 		Vector3 right{Vector3::UnitX};
 
@@ -34,9 +34,15 @@ namespace dae
 
 		Matrix CalculateCameraToWorld()
 		{
-			//todo: W2
-			assert(false && "Not Implemented Yet");
-			return {};
+			//Matrix rotation{ Matrix::CreateRotation(totalPitch, totalYaw, 0.f) };
+			//Matrix translation{ Matrix::CreateTranslation(origin) };
+
+			//forward = (rotation * translation).TransformVector(Vector3::UnitZ);
+			right = Vector3::Cross(up, forward).Normalized();
+			up = Vector3::Cross(forward, right).Normalized();
+
+			cameraToWorld = Matrix(right, up, forward, origin);
+			return cameraToWorld;
 		}
 
 		void Update(Timer* pTimer)

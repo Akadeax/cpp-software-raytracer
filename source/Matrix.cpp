@@ -104,9 +104,7 @@ namespace dae {
 
 	Matrix Matrix::CreateTranslation(float x, float y, float z)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		return CreateTranslation(Vector3(x, y, z));
 	}
 
 	Matrix Matrix::CreateTranslation(const Vector3& t)
@@ -116,42 +114,47 @@ namespace dae {
 
 	Matrix Matrix::CreateRotationX(float pitch)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		return Matrix(
+			Vector3::UnitX,
+			{ 0, std::cosf(pitch), -std::sinf(pitch) },
+			{ 0, std::sinf(pitch), std::cosf(pitch) },
+			Vector3::Zero
+		);
 	}
 
 	Matrix Matrix::CreateRotationY(float yaw)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		return Matrix(
+			{ std::cosf(yaw), 0, -std::sinf(yaw) },
+			Vector3::UnitY,
+			{ std::sinf(yaw), 0, std::cosf(yaw)  },
+			Vector3::Zero
+		);
 	}
 
 	Matrix Matrix::CreateRotationZ(float roll)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		return Matrix(
+			{ std::cosf(roll), -std::sinf(roll), 0 },
+			{ std::sinf(roll), std::cosf(roll), 0 },
+			Vector3::UnitZ,
+			Vector3::Zero
+		);
 	}
 
 	Matrix Matrix::CreateRotation(const Vector3& r)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		return CreateRotation(r.x, r.y, r.z);
 	}
 
 	Matrix Matrix::CreateRotation(float pitch, float yaw, float roll)
 	{
-		return CreateRotation({ pitch, yaw, roll });
+		return CreateRotationX(pitch) * CreateRotationY(yaw) * CreateRotationZ(roll);
 	}
 
 	Matrix Matrix::CreateScale(float sx, float sy, float sz)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		return { Vector3(sx, 0, 0), Vector3(0, sy, 0), Vector3(0, 0, sz), Vector3::Zero };
 	}
 
 	Matrix Matrix::CreateScale(const Vector3& s)
@@ -175,7 +178,7 @@ namespace dae {
 	Matrix Matrix::operator*(const Matrix& m) const
 	{
 		Matrix result{};
-		Matrix m_transposed = Transpose(m);
+		Matrix m_transposed{ Transpose(m) };
 
 		for (int r{ 0 }; r < 4; ++r)
 		{
