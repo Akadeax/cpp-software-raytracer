@@ -29,25 +29,23 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();	
 
+	camera.CalculateCameraToWorld();
+	float fov{ std::tanf(camera.fovAngle * dae::TO_RADIANS / 2.f) };
+	float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
+
 	for (int px{}; px < m_Width; ++px)
 	{
 		for (int py{}; py < m_Height; ++py)
 		{
 			ColorRGB finalColor{};
 
-			float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
-			float fov{ std::tanf(camera.fovAngle / 2.f) };
-
 			// Scale x value for pixel to be in [-aspectRatio; aspectRatio]
 			float cameraX{ (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * fov };
 			// Scale y value for pixel to be in [-1; 1]
 			float cameraY{ (1 - (2 * (py + 0.5f) / m_Height)) * fov };
 			
-
 			Vector3 rayDir{ camera.forward + (camera.right * cameraX) + (camera.up * cameraY) };
 			rayDir.Normalize();
-
-			rayDir = camera.CalculateCameraToWorld().TransformVector(rayDir);
 
 			// Shoot ray from camera in pixel direction
 			Ray ray{ camera.origin, rayDir };
@@ -58,6 +56,19 @@ void Renderer::Render(Scene* pScene) const
 			if (closestHit.didHit)
 			{
 				finalColor = materials[closestHit.materialIndex]->Shade();
+
+				for (const Light& light : pScene->GetLights())
+				{
+					Vector3 dirToLight{ LightUtils::GetDirectionToLight(light, closestHit.origin) };
+					float distToLight{ dirToLight.Normalize() };
+
+					Ray shadowRay{ closestHit.origin + closestHit.normal * 0.001f, dirToLight, 0.f, distToLight };
+
+					if (pScene->DoesHit(shadowRay))
+					{
+						finalColor *= 0.5f;
+					}
+				}
 			}
 
 			//Update Color in Buffer

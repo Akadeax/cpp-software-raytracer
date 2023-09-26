@@ -47,6 +47,8 @@ namespace dae {
 		Matrix operator*(const Matrix& m) const;
 		const Matrix& operator*=(const Matrix& m);
 
+		std::string ToString();
+
 	private:
 
 		//Row-Major Matrix
