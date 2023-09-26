@@ -36,16 +36,20 @@ void Renderer::Render(Scene* pScene) const
 			ColorRGB finalColor{};
 
 			float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
+			float fov{ std::tanf(camera.fovAngle / 2.f) };
+
+			// Scale x value for pixel to be in [-aspectRatio; aspectRatio]
+			float cameraX{ (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * fov };
+			// Scale y value for pixel to be in [-1; 1]
+			float cameraY{ (1 - (2 * (py + 0.5f) / m_Height)) * fov };
 			
-			float cameraX{ (2 * (px + 0.5f) / m_Width - 1) * aspectRatio };
-			float cameraY{ 1 - (2 * (py + 0.5f) / m_Height)};
-			
+
 			Vector3 rayDir{ camera.forward + (camera.right * cameraX) + (camera.up * cameraY) };
 			rayDir.Normalize();
+			// Shoot ray from camera in pixel direction
 			Ray ray{ camera.origin, rayDir };
 
 			HitRecord closestHit{};
-			Plane testPlane{ { 0.f, -50.f, 0.f }, {0.f, 1.f, 0.f }, 1 };
 			pScene->GetClosestHit(ray, closestHit);
 
 			if (closestHit.didHit)
