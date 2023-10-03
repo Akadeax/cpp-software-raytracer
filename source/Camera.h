@@ -27,7 +27,7 @@ namespace dae
 		Vector3 forward{ Vector3::UnitZ };
 		Vector3 up{ Vector3::UnitY };
 		Vector3 right{ Vector3::UnitX };
-
+	
 		float totalPitch{ 0.f };
 		float totalYaw{ 0.f };
 
@@ -51,14 +51,14 @@ namespace dae
 
 		void Update(Timer* pTimer)
 		{
-			const float deltaTime = pTimer->GetElapsed();
+			const float deltaTime{ pTimer->GetElapsed() };
 
 			// Keyboard Input
-			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
+			const uint8_t* pKeyboardState{ SDL_GetKeyboardState(nullptr) };
 			
 			// Mouse Input
 			int mouseX{}, mouseY{};
-			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+			const uint32_t mouseState{ SDL_GetRelativeMouseState(&mouseX, &mouseY) };
 
 			bool leftMouse{ (mouseState & SDL_BUTTON(1)) != 0 };
 			bool rightMouse{ (mouseState & SDL_BUTTON(3)) != 0 };

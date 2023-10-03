@@ -26,6 +26,7 @@ namespace dae
 			float t{ (-1 * b - sqrtf(discriminant)) / 2 * a };
 
 			if (t <= ray.min || t > ray.max) return false;
+			if (ignoreHitRecord) return true;
 
 			hitRecord.t = t;
 			hitRecord.didHit = true;
@@ -48,10 +49,8 @@ namespace dae
 			float denom{ Vector3::Dot(plane.normal, ray.direction) };
 			float t{ Vector3::Dot(plane.origin - ray.origin, plane.normal) / denom };
 
-			if (t <= ray.min || t > ray.max)
-			{
-				return false;
-			}
+			if (t <= ray.min || t > ray.max) return false;
+			if (ignoreHitRecord) return true;
 
 			hitRecord.t = t;
 			hitRecord.didHit = true;
@@ -108,9 +107,12 @@ namespace dae
 
 		inline ColorRGB GetRadiance(const Light& light, const Vector3& target)
 		{
-			//todo W3
-			assert(false && "No Implemented Yet!");
-			return {};
+			if (light.type == LightType::Directional)
+			{
+				return light.color * light.intensity;
+			}
+
+			return light.color * (light.intensity / (light.origin - target).SqrMagnitude());
 		}
 	}
 

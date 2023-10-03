@@ -55,18 +55,22 @@ void Renderer::Render(Scene* pScene) const
 
 			if (closestHit.didHit)
 			{
-				finalColor = materials[closestHit.materialIndex]->Shade();
+				//finalColor = materials[closestHit.materialIndex]->Shade();
 
-				for (const Light& light : pScene->GetLights())
+				if (m_ShadowsEnabled)
 				{
-					Vector3 dirToLight{ LightUtils::GetDirectionToLight(light, closestHit.origin) };
-					float distToLight{ dirToLight.Normalize() };
-
-					Ray shadowRay{ closestHit.origin + closestHit.normal * 0.001f, dirToLight, 0.f, distToLight };
-
-					if (pScene->DoesHit(shadowRay))
+					for (const Light& light : pScene->GetLights())
 					{
-						finalColor *= 0.5f;
+						Vector3 dirToLight{LightUtils::GetDirectionToLight(light, closestHit.origin)};
+						float distToLight{ dirToLight.Normalize() };
+
+						Ray shadowRay{ closestHit.origin + closestHit.normal * 0.001f, dirToLight, 0.f, distToLight };
+
+						if (pScene->DoesHit(shadowRay))
+						{
+							//finalColor *= 0.5f;
+						}
+						finalColor += LightUtils::GetRadiance(light, closestHit.origin);
 					}
 				}
 			}
@@ -89,4 +93,12 @@ void Renderer::Render(Scene* pScene) const
 bool Renderer::SaveBufferToImage() const
 {
 	return SDL_SaveBMP(m_pBuffer, "RayTracing_Buffer.bmp");
+}
+
+void dae::Renderer::CycleLightingMode()
+{
+	int current{ static_cast<int>(m_CurrentLightingMode) };
+	int max{ static_cast<int>(LightingMode::Combined) };
+
+	m_CurrentLightingMode = static_cast<LightingMode>((current + 1) % (max + 1));
 }
