@@ -55,28 +55,57 @@ void Renderer::Render(Scene* pScene) const
 
 			if (closestHit.didHit)
 			{
-				//finalColor = materials[closestHit.materialIndex]->Shade();
-
-				if (m_ShadowsEnabled)
+				for (const Light& light : pScene->GetLights())
 				{
-					for (const Light& light : pScene->GetLights())
+					Vector3 dirToLight{ LightUtils::GetDirectionToLight(light, closestHit.origin) };
+					float distToLight{ dirToLight.Normalize() };
+
+					float observedArea{ Vector3::Dot(closestHit.normal, dirToLight) };
+					if (observedArea < 0.f) continue;
+
+					
+					Ray shadowRay{ closestHit.origin + closestHit.normal * 0.001f, dirToLight, 0.f, distToLight };
+
+					// Skip this lights' calculations if shadowed
+					if (m_ShadowsEnabled && pScene->DoesHit(shadowRay))
 					{
-						Vector3 dirToLight{LightUtils::GetDirectionToLight(light, closestHit.origin)};
-						float distToLight{ dirToLight.Normalize() };
+						continue;
+					}
 
-						Ray shadowRay{ closestHit.origin + closestHit.normal * 0.001f, dirToLight, 0.f, distToLight };
+					ColorRGB radiance{ LightUtils::GetRadiance(light, closestHit.origin) };
+					ColorRGB shade{ materials[closestHit.materialIndex]->Shade(closestHit, dirToLight, -rayDir) };
+					
+					switch (m_CurrentLightingMode)
+					{
+					case LightingMode::ObservedArea:
+						finalColor += ColorRGB(observedArea, observedArea, observedArea);
+						break;
+					case LightingMode::Radiance:
+						finalColor += radiance;
+						break;
+					case LightingMode::BRDF:
+						finalColor += shade;
+						break;
 
-						if (pScene->DoesHit(shadowRay))
-						{
-							//finalColor *= 0.5f;
-						}
-						finalColor += LightUtils::GetRadiance(light, closestHit.origin);
+					case LightingMode::Combined:
+						finalColor += radiance * shade * observedArea;
+						break;
 					}
 				}
 			}
 
+			// Apply tone mapping
+			switch (m_CurrentToneMapping)
+			{
+			case ToneMapping::MaxToOne:
+				finalColor.MaxToOne();
+				break;
+			case ToneMapping::Hable:
+				finalColor.HableToneMap();
+				break;
+			}
+
 			//Update Color in Buffer
-			finalColor.MaxToOne();
 			m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,
 				static_cast<uint8_t>(finalColor.r * 255),
 				static_cast<uint8_t>(finalColor.g * 255),
@@ -101,4 +130,12 @@ void dae::Renderer::CycleLightingMode()
 	int max{ static_cast<int>(LightingMode::Combined) };
 
 	m_CurrentLightingMode = static_cast<LightingMode>((current + 1) % (max + 1));
+}
+
+void dae::Renderer::CycleToneMapping()
+{
+	int current{ static_cast<int>(m_CurrentToneMapping) };
+	int max{ static_cast<int>(ToneMapping::Hable) };
+
+	m_CurrentToneMapping = static_cast<ToneMapping>((current + 1) % (max + 1));
 }

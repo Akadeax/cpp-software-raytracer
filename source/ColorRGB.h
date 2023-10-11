@@ -11,9 +11,16 @@ namespace dae
 
 		void MaxToOne()
 		{
-			const float maxValue = std::max(r, std::max(g, b));
+			const float maxValue{ std::max(r, std::max(g, b)) };
 			if (maxValue > 1.f)
 				*this /= maxValue;
+		}
+
+		void HableToneMap()
+		{
+			r = Hable(r);
+			g = Hable(g);
+			b = Hable(b);
 		}
 
 		static ColorRGB Lerp(const ColorRGB& c1, const ColorRGB& c2, float factor)

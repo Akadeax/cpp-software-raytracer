@@ -24,6 +24,7 @@ namespace dae
 		bool SaveBufferToImage() const;
 
 		void CycleLightingMode();
+		void CycleToneMapping();
 		void ToggleShadows() { m_ShadowsEnabled = !m_ShadowsEnabled; }
 
 	private:
@@ -39,8 +40,14 @@ namespace dae
 			BRDF,
 			Combined
 		};
+		enum class ToneMapping
+		{
+			MaxToOne,
+			Hable
+		};
 
 		LightingMode m_CurrentLightingMode{ LightingMode::Combined };
+		ToneMapping m_CurrentToneMapping{ ToneMapping::MaxToOne };
 		bool m_ShadowsEnabled{ true };
 
 		int m_Width{};

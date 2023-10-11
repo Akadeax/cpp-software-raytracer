@@ -13,20 +13,17 @@ namespace dae
 		 */
 		static ColorRGB Lambert(float kd, const ColorRGB& cd)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			ColorRGB reflectivity{ cd * kd };
+			return reflectivity / dae::PI;
 		}
 
 		static ColorRGB Lambert(const ColorRGB& kd, const ColorRGB& cd)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			ColorRGB reflectivity{ cd * kd };
+			return reflectivity / dae::PI;
 		}
 
 		/**
-		 * \brief todo
 		 * \param ks Specular Reflection Coefficient
 		 * \param exp Phong Exponent
 		 * \param l Incoming (incident) Light Direction
@@ -36,9 +33,9 @@ namespace dae
 		 */
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			Vector3 reflect{ l - 2 * Vector3::Dot(n, l) * n };
+			float phong{ ks * std::powf(Vector3::Dot(reflect, v), exp) };
+			return ColorRGB{ phong, phong, phong };
 		}
 
 		/**

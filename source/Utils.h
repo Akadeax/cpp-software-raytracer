@@ -22,7 +22,6 @@ namespace dae
 
 			if (discriminant <= 0) return false;
 
-
 			float t{ (-1 * b - sqrtf(discriminant)) / 2 * a };
 
 			if (t <= ray.min || t > ray.max) return false;
@@ -30,7 +29,7 @@ namespace dae
 
 			hitRecord.t = t;
 			hitRecord.didHit = true;
-			hitRecord.origin = ray.origin + hitRecord.t * ray.direction;
+			hitRecord.origin = ray.origin + t * ray.direction;
 			hitRecord.normal = (hitRecord.origin - sphere.origin).Normalized();
 			hitRecord.materialIndex = sphere.materialIndex;
 			return true;
