@@ -33,8 +33,9 @@ namespace dae
 		 */
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			Vector3 reflect{ l - 2 * Vector3::Dot(n, l) * n };
-			float phong{ ks * std::powf(Vector3::Dot(reflect, v), exp) };
+			Vector3 reflect{ l - 2.f * Vector3::Dot(n, l) * n };
+			float cosAlpha{ std::max(0.f, Vector3::Dot(reflect, v)) };
+			float phong{ ks * std::powf(cosAlpha, exp) };
 			return ColorRGB{ phong, phong, phong };
 		}
 
@@ -47,9 +48,8 @@ namespace dae
 		 */
 		static ColorRGB FresnelFunction_Schlick(const Vector3& h, const Vector3& v, const ColorRGB& f0)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			ColorRGB inverse{ (ColorRGB{ 1, 1, 1 } - f0) };
+			return f0 + (inverse * std::powf(1.f - Vector3::Dot(h, v), 5));
 		}
 
 		/**
@@ -59,11 +59,11 @@ namespace dae
 		 * \param roughness Roughness of the material
 		 * \return BRDF Normal Distribution Term using Trowbridge-Reitz GGX
 		 */
-		static float NormalDistribution_GGX(const Vector3& n, const Vector3& h, float roughness)
+		static float NormalDistribution_TrowbridgeReitzGGX(const Vector3& n, const Vector3& h, float roughness)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			float alphaSquared{ roughness * roughness * roughness * roughness };
+			float inner{ Square(Vector3::Dot(n, h)) * (alphaSquared - 1.f) + 1.f };
+			return alphaSquared / (dae::PI * Square(inner));
 		}
 
 
@@ -76,9 +76,11 @@ namespace dae
 		 */
 		static float GeometryFunction_SchlickGGX(const Vector3& n, const Vector3& v, float roughness)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			float alpha{ roughness * roughness };
+			float kDirect{ Square(alpha + 1.f) / 8.f };
+
+			float numerator{ Vector3::Dot(n, v) };
+			return numerator / (numerator * (1.f - kDirect) + kDirect);
 		}
 
 		/**
@@ -91,9 +93,7 @@ namespace dae
 		 */
 		static float GeometryFunction_Smith(const Vector3& n, const Vector3& v, const Vector3& l, float roughness)
 		{
-			//todo: W3
-			assert(false && "Not Implemented Yet");
-			return {};
+			return GeometryFunction_SchlickGGX(n, v, roughness) * GeometryFunction_SchlickGGX(n, l, roughness);
 		}
 
 	}

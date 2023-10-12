@@ -61,7 +61,7 @@ void Renderer::Render(Scene* pScene) const
 					float distToLight{ dirToLight.Normalize() };
 
 					float observedArea{ Vector3::Dot(closestHit.normal, dirToLight) };
-					if (observedArea < 0.f) continue;
+					if (observedArea <= 0.f) continue;
 
 					
 					Ray shadowRay{ closestHit.origin + closestHit.normal * 0.001f, dirToLight, 0.f, distToLight };
