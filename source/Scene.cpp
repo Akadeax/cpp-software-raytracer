@@ -49,6 +49,17 @@ namespace dae {
 				closestHit = currentHitRecord;
 			}
 		}
+
+		for (size_t i{}; i < m_TriangleMeshGeometries.size(); ++i)
+		{
+			HitRecord currentHitRecord{};
+			GeometryUtils::HitTest_TriangleMesh(m_TriangleMeshGeometries[i], ray, currentHitRecord);
+
+			if (currentHitRecord.t < closestHit.t)
+			{
+				closestHit = currentHitRecord;
+			}
+		}
 	}
 
 	bool Scene::DoesHit(const Ray& ray) const

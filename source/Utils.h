@@ -66,13 +66,53 @@ namespace dae
 		}
 #pragma endregion
 #pragma region Triangle HitTest
+		inline bool HitTest_RightSideOfLine(Vector3 point, Vector3 linePoint0, Vector3 linePoint1, Vector3 normal)
+		{
+			Vector3 e{ linePoint1 - linePoint0 };
+			Vector3 p{ point - linePoint0 };
+			Vector3 cross{ Vector3::Cross(e, point) };
+
+			return Vector3::Dot(cross, normal) >= 0.f;
+		}
+
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
-			assert(false && "No Implemented Yet!");
-			return false;
+			Vector3 a{ triangle.v1 - triangle.v0 };
+			Vector3 b{ triangle.v2 - triangle.v0 };
+			Vector3 n{ Vector3::Cross(a, b) };
+
+			// Face Culling
+
+			float dot{ Vector3::Dot(n, ray.direction) };
+
+			if (triangle.cullMode == TriangleCullMode::BackFaceCulling && dot > 0.f) return false;
+			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling && dot < 0.f) return false;
+
+			if (AreEqual(dot, 0)) return false;
+
+			Vector3 l{ triangle.v0 - ray.origin };
+			float t{ Vector3::Dot(l, n) / Vector3::Dot(ray.direction, n) };
+
+			if (t < ray.min || t > ray.max) return false;
+
+			Vector3 p{ ray.origin + ray.direction * t };
+
+			if (!HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, n) ||
+				!HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, n) ||
+				!HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, n))
+			{
+				return false;
+			}
+
+			hitRecord.t = t;
+			hitRecord.didHit = true;
+			hitRecord.origin = p;
+			hitRecord.normal = n;
+			hitRecord.materialIndex = triangle.materialIndex;
+			return true;
 		}
+
 
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray)
 		{
@@ -83,9 +123,7 @@ namespace dae
 #pragma region TriangeMesh HitTest
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
-			assert(false && "No Implemented Yet!");
-			return false;
+			// TODO: Implement
 		}
 
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray)

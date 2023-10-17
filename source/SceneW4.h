@@ -1,0 +1,20 @@
+#pragma once
+#include "Scene.h"
+
+class SceneW4 : public dae::Scene
+{
+public:
+	SceneW4() = default;
+	~SceneW4() override;
+
+	SceneW4(const SceneW4&) = delete;
+	SceneW4(SceneW4&&) noexcept = delete;
+	SceneW4& operator=(const SceneW4&) = delete;
+	SceneW4& operator=(SceneW4&&) noexcept = delete;
+
+	void Initialize() override;
+
+private:
+	dae::TriangleMesh* m_pMesh{};
+};
+
