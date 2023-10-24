@@ -50,6 +50,17 @@ namespace dae {
 			}
 		}
 
+		for (size_t i{}; i < m_Triangles.size(); ++i)
+		{
+			HitRecord currentHitRecord{};
+			GeometryUtils::HitTest_Triangle(m_Triangles[i], ray, currentHitRecord);
+
+			if (currentHitRecord.t < closestHit.t)
+			{
+				closestHit = currentHitRecord;
+			}
+		}
+
 		for (size_t i{}; i < m_TriangleMeshGeometries.size(); ++i)
 		{
 			HitRecord currentHitRecord{};
@@ -72,6 +83,16 @@ namespace dae {
 		for (size_t i{}; i < m_PlaneGeometries.size(); ++i)
 		{
 			if (GeometryUtils::HitTest_Plane(m_PlaneGeometries[i], ray)) return true;
+		}
+
+		for (size_t i{}; i < m_Triangles.size(); ++i)
+		{
+			if (GeometryUtils::HitTest_Triangle(m_Triangles[i], ray)) return true;
+		}
+
+		for (size_t i{}; i < m_TriangleMeshGeometries.size(); ++i)
+		{
+			if (GeometryUtils::HitTest_TriangleMesh(m_TriangleMeshGeometries[i], ray)) return true;
 		}
 
 		return false;

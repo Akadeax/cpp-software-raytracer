@@ -45,8 +45,8 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			float denom{ Vector3::Dot(plane.normal, ray.direction) };
-			float t{ Vector3::Dot(plane.origin - ray.origin, plane.normal) / denom };
+			const float denom{ Vector3::Dot(plane.normal, ray.direction) };
+			const float t{ Vector3::Dot(plane.origin - ray.origin, plane.normal) / denom };
 
 			if (t <= ray.min || t > ray.max) return false;
 			if (ignoreHitRecord) return true;
@@ -68,39 +68,39 @@ namespace dae
 #pragma region Triangle HitTest
 		inline bool HitTest_RightSideOfLine(Vector3 point, Vector3 linePoint0, Vector3 linePoint1, Vector3 normal)
 		{
-			Vector3 e{ linePoint1 - linePoint0 };
-			Vector3 p{ point - linePoint0 };
-			Vector3 cross{ Vector3::Cross(e, point) };
+			const Vector3 e{ linePoint1 - linePoint0 };
+			const Vector3 cross{ Vector3::Cross(e, point - linePoint0) };
 
-			return Vector3::Dot(cross, normal) >= 0.f;
+			return Vector3::Dot(cross, normal) <= 0.f;
 		}
+
 
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			Vector3 a{ triangle.v1 - triangle.v0 };
-			Vector3 b{ triangle.v2 - triangle.v0 };
-			Vector3 n{ Vector3::Cross(a, b) };
-
 			// Face Culling
-
-			float dot{ Vector3::Dot(n, ray.direction) };
-
-			if (triangle.cullMode == TriangleCullMode::BackFaceCulling && dot > 0.f) return false;
-			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling && dot < 0.f) return false;
-
+			const float dot{ Vector3::Dot(triangle.normal, ray.direction) };
 			if (AreEqual(dot, 0)) return false;
 
-			Vector3 l{ triangle.v0 - ray.origin };
-			float t{ Vector3::Dot(l, n) / Vector3::Dot(ray.direction, n) };
+			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
+			{
+				if (!ignoreHitRecord && dot < 0.f || ignoreHitRecord && dot > 0.f) return false;
+			}
+			if (triangle.cullMode == TriangleCullMode::BackFaceCulling)
+			{
+				if (!ignoreHitRecord && dot > 0.f || ignoreHitRecord && dot < 0.f) return false;
+			}
+
+			const Vector3 l{ triangle.v0 - ray.origin };
+			const float t{ Vector3::Dot(l, triangle.normal) / Vector3::Dot(ray.direction, triangle.normal) };
 
 			if (t < ray.min || t > ray.max) return false;
 
-			Vector3 p{ ray.origin + ray.direction * t };
+			const Vector3 p{ ray.origin + ray.direction * t };
 
-			if (!HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, n) ||
-				!HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, n) ||
-				!HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, n))
+			if (HitTest_RightSideOfLine(p, triangle.v0, triangle.v1, triangle.normal) ||
+				HitTest_RightSideOfLine(p, triangle.v1, triangle.v2, triangle.normal) ||
+				HitTest_RightSideOfLine(p, triangle.v2, triangle.v0, triangle.normal))
 			{
 				return false;
 			}
@@ -108,7 +108,60 @@ namespace dae
 			hitRecord.t = t;
 			hitRecord.didHit = true;
 			hitRecord.origin = p;
-			hitRecord.normal = n;
+			hitRecord.normal = triangle.normal;
+			hitRecord.materialIndex = triangle.materialIndex;
+			return true;
+		}
+
+		// Moeller-Trumbore intersection https://cadxfem.org/inf/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+		inline bool HitTest_TriangleMoellerTrumbore(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
+		{
+			// Face Culling
+			const float dot{ Vector3::Dot(triangle.normal, ray.direction) };
+			if (AreEqual(dot, 0)) return false;
+
+			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
+			{
+				if (!ignoreHitRecord && dot < 0.f || ignoreHitRecord && dot > 0.f) return false;
+			}
+			if (triangle.cullMode == TriangleCullMode::BackFaceCulling)
+			{
+				if (!ignoreHitRecord && dot > 0.f || ignoreHitRecord && dot < 0.f) return false;
+			}
+
+			const Vector3 edge1{ triangle.v1 - triangle.v0 };
+			const Vector3 edge2{ triangle.v2 - triangle.v0 };
+
+			const Vector3 pVec{ Vector3::Cross(ray.direction, edge2) };
+
+			const float factor{ Vector3::Dot(pVec, edge1) };
+			if (AreEqual(factor, 0)) return false;
+
+			const float inverseFactor{ 1.f / factor };
+
+			// Get u
+			const Vector3 tVec{ ray.origin - triangle.v0 };
+
+			const float u{ inverseFactor * Vector3::Dot(pVec, tVec) };
+			if (u < 0.f || u > 1.f) return false;
+
+			// Get v
+			const Vector3 qVec{ Vector3::Cross(tVec, edge1) };
+
+			const float v{ inverseFactor * Vector3::Dot(qVec, ray.direction) };
+			if (v < 0.f || u + v > 1.f) return false;
+
+
+			if (ignoreHitRecord) return true;
+
+			const float t{ inverseFactor * Vector3::Dot(qVec, edge2) };
+
+			if (t < ray.min || t > ray.max) return false;
+
+			hitRecord.t = t;
+			hitRecord.didHit = true;
+			hitRecord.origin = ray.origin + ray.direction * t;
+			hitRecord.normal = triangle.normal;
 			hitRecord.materialIndex = triangle.materialIndex;
 			return true;
 		}
@@ -120,10 +173,40 @@ namespace dae
 			return HitTest_Triangle(triangle, ray, temp, true);
 		}
 #pragma endregion
+
+
 #pragma region TriangeMesh HitTest
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			// TODO: Implement
+			const size_t triangleCount{ mesh.normals.size() };
+			float currentLowestDistance{ ray.max };
+
+			for (size_t i{ 0 }; i < triangleCount; ++i)
+			{
+				// Construct triangle from vertex list
+				const Vector3 v0{ mesh.transformedPositions[mesh.indices[3 * i + 0]] };
+				const Vector3 v1{ mesh.transformedPositions[mesh.indices[3 * i + 1]] };
+				const Vector3 v2{ mesh.transformedPositions[mesh.indices[3 * i + 2]] };
+
+				Triangle triangle{ v0, v1, v2, mesh.transformedNormals[i] };
+				triangle.cullMode = mesh.cullMode;
+				triangle.materialIndex = mesh.materialIndex;
+
+				HitRecord temp{};
+				if (HitTest_TriangleMoellerTrumbore(triangle, ray, temp, ignoreHitRecord))
+				{
+					if (ignoreHitRecord) return true;
+
+					// Is this the triangle in the mesh that should be renderer on top?
+					if (temp.didHit && temp.t < currentLowestDistance)
+					{
+						currentLowestDistance = temp.t;
+						hitRecord = temp;
+					}
+				}
+			}
+
+			return hitRecord.didHit;
 		}
 
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray)
@@ -187,14 +270,14 @@ namespace dae
 					float i0, i1, i2;
 					file >> i0 >> i1 >> i2;
 
-					indices.push_back((int)i0 - 1);
-					indices.push_back((int)i1 - 1);
-					indices.push_back((int)i2 - 1);
+					indices.push_back(static_cast<int>(i0) - 1);
+					indices.push_back(static_cast<int>(i1) - 1);
+					indices.push_back(static_cast<int>(i2) - 1);
 				}
 				//read till end of line and ignore all remaining chars
 				file.ignore(1000, '\n');
 
-				if (file.eof()) 
+				if (file.eof())
 					break;
 			}
 
@@ -209,7 +292,7 @@ namespace dae
 				Vector3 edgeV0V2 = positions[i2] - positions[i0];
 				Vector3 normal = Vector3::Cross(edgeV0V1, edgeV0V2);
 
-				if(isnan(normal.x))
+				if (isnan(normal.x))
 				{
 					int k = 0;
 				}

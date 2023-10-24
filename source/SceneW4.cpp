@@ -1,5 +1,6 @@
 #include "SceneW4.h"
 #include "Material.h"
+#include "Utils.h"
 
 SceneW4::~SceneW4()
 {
@@ -7,8 +8,9 @@ SceneW4::~SceneW4()
 
 void SceneW4::Initialize()
 {
-	m_Camera.origin = { 0.f,1.f,-5.f };
+	m_Camera.origin = { 1.f,1.f,-5.f };
 	m_Camera.fovAngle = 45.f;
+	m_Camera.totalYaw = -dae::PI_DIV_4 / 2.f;
 
 	//Materials
 	const auto matLambert_GrayBlue = AddMaterial(new dae::Material_Lambert({ .49f, 0.57f, 0.57f }, 1.f));
@@ -21,27 +23,27 @@ void SceneW4::Initialize()
 	AddPlane(dae::Vector3{ 5.f, 0.f, 0.f }, dae::Vector3{ -1.f, 0.f, 0.f }, matLambert_GrayBlue); //RIGHT
 	AddPlane(dae::Vector3{ -5.f, 0.f, 0.f }, dae::Vector3{ 1.f, 0.f, 0.f }, matLambert_GrayBlue); //LEFT
 
-	////Triangle (Temp)
-	////===============
-	//auto triangle = Triangle{ {-.75f,.5f,.0f},{-.75f,2.f, .0f}, {.75f,.5f,0.f} };
-	//triangle.cullMode = TriangleCullMode::NoCulling;
+	//Triangle (Temp)
+	//===============
+	//auto triangle = dae::Triangle{ {-.75f,.5f,.0f},{-.75f,2.f, .0f}, {.75f,.5f,0.f} };
+	//triangle.cullMode = dae::TriangleCullMode::NoCulling;
 	//triangle.materialIndex = matLambert_White;
 
 	//m_Triangles.emplace_back(triangle);
 
-	//Triangle Mesh
-	//=============
-	m_pMesh = AddTriangleMesh(dae::TriangleCullMode::NoCulling, matLambert_White);
-	m_pMesh->positions = {
-		{-.75f,-1.f,.0f},  //V0
-		{-.75f,1.f, .0f},  //V2
-		{.75f,1.f,1.f},    //V3
-		{.75f,-1.f,0.f} }; //V4
-
-	m_pMesh->indices = {
-		0,1,2, //Triangle 1
-		0,2,3  //Triangle 2
-	};
+	////Triangle Mesh
+	////=============
+	//m_pMesh = AddTriangleMesh(dae::TriangleCullMode::BackFaceCulling, matLambert_White);
+	//m_pMesh->positions = {
+	//{ -0.75f,-1.0f,0.0f }	//v0
+	//, { -0.75f,1.f,0.0f }	//v1
+	//, { 0.75f,1.0f,1.f }	//v2
+	//, { 0.75f,-1.0f,0.f }	//v3
+	//};
+	//m_pMesh->indices = {
+	//	0,1,2, //Triangle 1
+	//	0,2,3  // Triangle 2
+	//};
 
 	//m_pMesh->CalculateNormals();
 
@@ -50,19 +52,19 @@ void SceneW4::Initialize()
 
 	////OBJ
 	////===
-	//pMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
-	//Utils::ParseOBJ("Resources/simple_cube.obj",
-	////Utils::ParseOBJ("Resources/simple_object.obj",
-	//	pMesh->positions, 
-	//	pMesh->normals, 
-	//	pMesh->indices);
+	m_pMesh = AddTriangleMesh(dae::TriangleCullMode::NoCulling, matLambert_White);
+	dae::Utils::ParseOBJ("Resources/lowpoly_bunny2.obj",
+		m_pMesh->positions,
+		m_pMesh->normals,
+		m_pMesh->indices
+	);
 
-	////No need to Calculate the normals, these are calculated inside the ParseOBJ function
-	//pMesh->UpdateTransforms();
 
-	//pMesh->Scale({ .7f,.7f,.7f });
-	//pMesh->Translate({ .0f,1.f,0.f });
+	//m_pMesh->Scale({ .7f,.7f,.7f });
+	m_pMesh->Translate({ .0f,1.f,0.f });
 
+	//No need to Calculate the normals, these are calculated inside the ParseOBJ function
+	m_pMesh->UpdateTransforms();
 
 	//Light
 	AddPointLight(dae::Vector3{ 0.f, 5.f, 5.f }, 50.f, dae::ColorRGB{ 1.f, .61f, .45f }); //Backlight

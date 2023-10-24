@@ -121,22 +121,44 @@ namespace dae
 				UpdateTransforms();
 		}
 
+
 		void CalculateNormals()
 		{
-			assert(false && "No Implemented Yet!");
+			normals.clear();
+			normals.reserve(indices.size());
+
+			const size_t trianglesCount{ indices.size() / 3 };
+
+			for (size_t i{ 0 }; i < trianglesCount; ++i)
+			{
+				Vector3 v0v1{ positions[indices[i * 3 + 0]] - positions[indices[i * 3 + 1]] };
+				Vector3 v1v2{ positions[indices[i * 3 + 1]] - positions[indices[i * 3 + 2]] };
+				const Vector3 normal{ Vector3::Cross(v0v1, v1v2) };
+
+				normals.emplace_back(normal);
+			}
 		}
+
 
 		void UpdateTransforms()
 		{
-			assert(false && "No Implemented Yet!");
-			//Calculate Final Transform 
-			//const auto finalTransform = ...
+			const Matrix TRS{ scaleTransform * rotationTransform * translationTransform };
 
-			//Transform Positions (positions > transformedPositions)
-			//...
+			transformedPositions.clear();
+			transformedPositions.reserve(positions.size());
 
-			//Transform Normals (normals > transformedNormals)
-			//...
+			for (Vector3 pos : positions)
+			{
+				transformedPositions.emplace_back(TRS.TransformPoint(pos));
+			}
+
+			transformedNormals.clear();
+			transformedNormals.reserve(normals.size());
+
+			for (Vector3 normal : normals)
+			{
+				transformedNormals.emplace_back(rotationTransform.TransformVector(normal));
+			}
 		}
 	};
 #pragma endregion
