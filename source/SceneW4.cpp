@@ -8,9 +8,8 @@ SceneW4::~SceneW4()
 
 void SceneW4::Initialize()
 {
-	m_Camera.origin = { 1.f,1.f,-5.f };
+	m_Camera.origin = { 0.f,1.f,-5.f };
 	m_Camera.fovAngle = 45.f;
-	m_Camera.totalYaw = -dae::PI_DIV_4 / 2.f;
 
 	//Materials
 	const auto matLambert_GrayBlue = AddMaterial(new dae::Material_Lambert({ .49f, 0.57f, 0.57f }, 1.f));
@@ -61,13 +60,21 @@ void SceneW4::Initialize()
 
 
 	//m_pMesh->Scale({ .7f,.7f,.7f });
-	m_pMesh->Translate({ .0f,1.f,0.f });
+	m_pMesh->Translate({ .0f,0.f,0.f });
 
-	//No need to Calculate the normals, these are calculated inside the ParseOBJ function
+	m_pMesh->UpdateAABB();
 	m_pMesh->UpdateTransforms();
 
 	//Light
 	AddPointLight(dae::Vector3{ 0.f, 5.f, 5.f }, 50.f, dae::ColorRGB{ 1.f, .61f, .45f }); //Backlight
 	AddPointLight(dae::Vector3{ -2.5f, 5.f, -5.f }, 70.f, dae::ColorRGB{ 1.f, .8f, .45f }); //Front Light Left
 	AddPointLight(dae::Vector3{ 2.5f, 2.5f, -5.f }, 50.f, dae::ColorRGB{ .34f, .47f, .68f });
+}
+
+void SceneW4::Update(dae::Timer* pTimer)
+{
+	Scene::Update(pTimer);
+
+	m_pMesh->RotateY(std::sinf(pTimer->GetTotal() * m_MeshRotationSpeed) * 2 * dae::PI);
+	m_pMesh->UpdateTransforms();
 }

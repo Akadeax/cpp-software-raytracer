@@ -33,6 +33,8 @@ namespace dae
 		SDL_Surface* m_pBuffer{};
 		uint32_t* m_pBufferPixels{};
 
+		void RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio, float fov) const;
+
 		enum class LightingMode
 		{
 			ObservedArea,

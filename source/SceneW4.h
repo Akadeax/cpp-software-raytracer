@@ -13,8 +13,10 @@ public:
 	SceneW4& operator=(SceneW4&&) noexcept = delete;
 
 	void Initialize() override;
+	void Update(dae::Timer* pTimer) override;
 
 private:
 	dae::TriangleMesh* m_pMesh{};
+	float m_MeshRotationSpeed{ 0.75f };
 };
 
