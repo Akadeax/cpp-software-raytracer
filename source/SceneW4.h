@@ -1,7 +1,7 @@
 #pragma once
 #include "Scene.h"
 
-class SceneW4 : public dae::Scene
+class SceneW4 final : public dae::Scene
 {
 public:
 	SceneW4() = default;
@@ -17,6 +17,6 @@ public:
 
 private:
 	dae::TriangleMesh* m_pMesh{};
-	float m_MeshRotationSpeed{ 0.75f };
+	float m_MeshRotationSpeed{ 0.15f };
 };
 

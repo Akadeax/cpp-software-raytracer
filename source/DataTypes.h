@@ -110,7 +110,7 @@ namespace dae
 
 		void UpdateAABB()
 		{
-			if (positions.size() == 0) return;
+			if (positions.empty()) return;
 
 			minAABB = positions[0];
 			maxAABB = positions[0];
@@ -173,7 +173,7 @@ namespace dae
 			normals.push_back(triangle.normal);
 
 			//Not ideal, but making sure all vertices are updated
-			if(!ignoreTransformUpdate)
+			if (!ignoreTransformUpdate)
 				UpdateTransforms();
 		}
 

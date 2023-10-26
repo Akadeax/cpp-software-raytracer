@@ -11,6 +11,8 @@
 #include "Timer.h"
 #include "Renderer.h"
 #include "Scene.h"
+#include "SceneEXTRA.h"
+#include "SceneREFERENCE.h"
 #include "Vector3.h"
 
 #include "SceneW4.h"
@@ -47,7 +49,7 @@ int main(int argc, char* args[])
 	//Initialize "framework"
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
-
+	//pRenderer->CycleToneMapping();
 	const auto pScene = new SceneW4();
 	pScene->Initialize();
 

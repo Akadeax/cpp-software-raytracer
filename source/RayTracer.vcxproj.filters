@@ -69,6 +69,12 @@
     <ClInclude Include="SceneW4.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="SceneEXTRA.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneREFERENCE.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -98,6 +104,12 @@
       <Filter>Scenes</Filter>
     </ClCompile>
     <ClCompile Include="SceneW4.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneEXTRA.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneREFERENCE.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
   </ItemGroup>

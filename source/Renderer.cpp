@@ -86,7 +86,7 @@ void dae::Renderer::RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
-	ColorRGB finalColor{};
+	ColorRGB finalColor{ };
 
 	int px{ pixelIndex % m_Width };
 	int py{ pixelIndex / m_Width };

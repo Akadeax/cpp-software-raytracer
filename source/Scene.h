@@ -59,6 +59,7 @@ namespace dae
 		Sphere* AddSphere(const Vector3& origin, float radius, unsigned char materialIndex = 0);
 		Plane* AddPlane(const Vector3& origin, const Vector3& normal, unsigned char materialIndex = 0);
 		TriangleMesh* AddTriangleMesh(TriangleCullMode cullMode, unsigned char materialIndex = 0);
+		TriangleMesh* AddTriangleMesh(const std::string& objFile, Vector3 position, Vector3 scale, float yaw, unsigned char materialIndex);
 
 		Light* AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color);
 		Light* AddDirectionalLight(const Vector3& direction, float intensity, const ColorRGB& color);

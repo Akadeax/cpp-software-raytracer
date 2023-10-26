@@ -50,16 +50,16 @@ namespace dae {
 			}
 		}
 
-		for (size_t i{}; i < m_Triangles.size(); ++i)
-		{
-			HitRecord currentHitRecord{};
-			GeometryUtils::HitTest_Triangle(m_Triangles[i], ray, currentHitRecord);
+		//for (size_t i{}; i < m_Triangles.size(); ++i)
+		//{
+		//	HitRecord currentHitRecord{};
+		//	GeometryUtils::HitTest_Triangle(m_Triangles[i], ray, currentHitRecord);
 
-			if (currentHitRecord.t < closestHit.t)
-			{
-				closestHit = currentHitRecord;
-			}
-		}
+		//	if (currentHitRecord.t < closestHit.t)
+		//	{
+		//		closestHit = currentHitRecord;
+		//	}
+		//}
 
 		for (size_t i{}; i < m_TriangleMeshGeometries.size(); ++i)
 		{
@@ -85,10 +85,10 @@ namespace dae {
 			if (GeometryUtils::HitTest_Plane(m_PlaneGeometries[i], ray)) return true;
 		}
 
-		for (size_t i{}; i < m_Triangles.size(); ++i)
-		{
-			if (GeometryUtils::HitTest_Triangle(m_Triangles[i], ray)) return true;
-		}
+		//for (size_t i{}; i < m_Triangles.size(); ++i)
+		//{
+		//	if (GeometryUtils::HitTest_Triangle(m_Triangles[i], ray)) return true;
+		//}
 
 		for (size_t i{}; i < m_TriangleMeshGeometries.size(); ++i)
 		{
@@ -129,6 +129,25 @@ namespace dae {
 
 		m_TriangleMeshGeometries.emplace_back(m);
 		return &m_TriangleMeshGeometries.back();
+	}
+
+	TriangleMesh* Scene::AddTriangleMesh(const std::string& objFile, Vector3 position, Vector3 scale, float yaw, unsigned char materialIndex)
+	{
+		TriangleMesh* pMesh = AddTriangleMesh(TriangleCullMode::NoCulling, materialIndex);
+		Utils::ParseOBJ(objFile,
+			pMesh->positions,
+			pMesh->normals,
+			pMesh->indices
+		);
+
+		pMesh->Scale(scale);
+		pMesh->Translate(position);
+		pMesh->RotateY(yaw);
+
+		pMesh->UpdateAABB();
+		pMesh->UpdateTransforms();
+
+		return pMesh;
 	}
 
 	Light* Scene::AddPointLight(const Vector3& origin, float intensity, const ColorRGB& color)
