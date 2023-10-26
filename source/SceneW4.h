@@ -17,6 +17,6 @@ public:
 
 private:
 	dae::TriangleMesh* m_pMesh{};
-	float m_MeshRotationSpeed{ 0.15f };
+	float m_MeshRotationSpeed{ 1.15f };
 };
 

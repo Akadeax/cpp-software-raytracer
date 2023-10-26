@@ -50,7 +50,8 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 	//pRenderer->CycleToneMapping();
-	const auto pScene = new SceneW4();
+
+	const auto pScene = new SceneREFERENCE();
 	pScene->Initialize();
 
 	//Start loop
