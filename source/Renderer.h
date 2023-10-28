@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -20,7 +21,7 @@ namespace dae
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
-		void Render(Scene* pScene) const;
+		void Render(Scene* pScene);
 		bool SaveBufferToImage() const;
 
 		void CycleLightingMode();
@@ -33,7 +34,9 @@ namespace dae
 		SDL_Surface* m_pBuffer{};
 		uint32_t* m_pBufferPixels{};
 
-		void RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio, float fov) const;
+		std::vector<int> m_PixelIndices{};
+
+		void RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio, float fov);
 
 		enum class LightingMode
 		{

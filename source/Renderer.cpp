@@ -13,9 +13,9 @@
 #include "Vector3.h"
 #include <execution>
 
-#define PARALLEL_EXECUTION
-
 using namespace dae;
+
+#define PARALLEL_EXECUTION
 
 Renderer::Renderer(SDL_Window * pWindow) :
 	m_pWindow(pWindow),
@@ -24,26 +24,26 @@ Renderer::Renderer(SDL_Window * pWindow) :
 	//Initialize
 	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
 	m_pBufferPixels = static_cast<uint32_t*>(m_pBuffer->pixels);
+
+#ifdef PARALLEL_EXECUTION
+	int pixelCount{ m_Width * m_Height };
+	m_PixelIndices.reserve(pixelCount);
+	for (int i{ 0 }; i < pixelCount; ++i)
+	{
+		m_PixelIndices.emplace_back(i);
+	}
+#endif
 }
 
-void Renderer::Render(Scene* pScene) const
+void Renderer::Render(Scene* pScene)
 {
 	Camera& camera = pScene->GetCamera();
 	camera.CalculateCameraToWorld();
 	float fov{ std::tanf(camera.fovAngle * dae::TO_RADIANS / 2.f) };
 	float aspectRatio{ static_cast<float>(m_Width) / static_cast<float>(m_Height) };
 
-	int pixelCount{ m_Width * m_Height };
 #ifdef PARALLEL_EXECUTION
-	std::vector<int> pixelIndices{};
-
-	pixelIndices.reserve(pixelCount);
-	for (int i{ 0 }; i < pixelCount; ++i)
-	{
-		pixelIndices.emplace_back(i);
-	}
-
-	std::for_each(std::execution::par, pixelIndices.begin(), pixelIndices.end(), [&](int i) 
+	std::for_each(std::execution::par, m_PixelIndices.begin(), m_PixelIndices.end(), [&](int i) 
 	{
 		RenderPixel(pScene, i, aspectRatio, fov);
 	});
@@ -80,7 +80,7 @@ void dae::Renderer::CycleToneMapping()
 	m_CurrentToneMapping = static_cast<ToneMapping>((current + 1) % (max + 1));
 }
 
-void dae::Renderer::RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio, float fov) const
+void dae::Renderer::RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio, float fov)
 {
 	Camera& camera = pScene->GetCamera();
 	auto& materials = pScene->GetMaterials();
