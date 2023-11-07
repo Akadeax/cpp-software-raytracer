@@ -346,9 +346,9 @@ namespace dae
 			//Precompute normals
 			for (uint64_t index = 0; index < indices.size(); index += 3)
 			{
-				uint32_t i0 = indices[index];
-				uint32_t i1 = indices[index + 1];
-				uint32_t i2 = indices[index + 2];
+				const uint32_t i0 = indices[index];
+				const uint32_t i1 = indices[index + 1];
+				const uint32_t i2 = indices[index + 2];
 
 				Vector3 edgeV0V1 = positions[i1] - positions[i0];
 				Vector3 edgeV0V2 = positions[i2] - positions[i0];

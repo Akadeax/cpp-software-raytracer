@@ -38,7 +38,7 @@ namespace dae
 
 		Matrix CalculateCameraToWorld()
 		{
-			Matrix rotation{ Matrix::CreateRotation(totalPitch, totalYaw, 0.f) };
+			const Matrix rotation{ Matrix::CreateRotation(totalPitch, totalYaw, 0.f) };
 
 			forward = rotation.TransformVector(Vector3::UnitZ);
 			right = Vector3::Cross(Vector3::UnitY, forward).Normalized();
@@ -60,8 +60,8 @@ namespace dae
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState{ SDL_GetRelativeMouseState(&mouseX, &mouseY) };
 
-			bool leftMouse{ (mouseState & SDL_BUTTON(1)) != 0 };
-			bool rightMouse{ (mouseState & SDL_BUTTON(3)) != 0 };
+			const bool leftMouse{ (mouseState & SDL_BUTTON(1)) != 0 };
+			const bool rightMouse{ (mouseState & SDL_BUTTON(3)) != 0 };
 
 			// == Translation ==
 			// WASD

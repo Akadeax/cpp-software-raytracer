@@ -32,12 +32,12 @@ namespace dae
 	// Thank you Uncharted-2-guy: http://filmicworlds.com/blog/filmic-tonemapping-with-piecewise-power-curves/
 	inline float Hable(float x)
 	{
-		float A = 0.15f;
-		float B = 0.50f;
-		float C = 0.10f;
-		float D = 0.20f;
-		float E = 0.02f;
-		float F = 0.30f;
+		const float A = 0.15f;
+		const float B = 0.50f;
+		const float C = 0.10f;
+		const float D = 0.20f;
+		const float E = 0.02f;
+		const float F = 0.30f;
 
 		return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
 	}

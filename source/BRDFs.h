@@ -33,9 +33,9 @@ namespace dae
 		 */
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			Vector3 reflect{ l - 2.f * Vector3::Dot(n, l) * n };
-			float cosAlpha{ std::max(0.f, Vector3::Dot(reflect, v)) };
-			float phong{ ks * std::powf(cosAlpha, exp) };
+			const Vector3 reflect{ l - 2.f * Vector3::Dot(n, l) * n };
+			const float cosAlpha{ std::max(0.f, Vector3::Dot(reflect, v)) };
+			const float phong{ ks * std::powf(cosAlpha, exp) };
 			return ColorRGB{ phong, phong, phong };
 		}
 
@@ -61,8 +61,8 @@ namespace dae
 		 */
 		static float NormalDistribution_TrowbridgeReitzGGX(const Vector3& n, const Vector3& h, float roughness)
 		{
-			float alphaSquared{ roughness * roughness * roughness * roughness };
-			float inner{ Square(Vector3::Dot(n, h)) * (alphaSquared - 1.f) + 1.f };
+			const float alphaSquared{ roughness * roughness * roughness * roughness };
+			const float inner{ Square(Vector3::Dot(n, h)) * (alphaSquared - 1.f) + 1.f };
 			return alphaSquared / (dae::PI * Square(inner));
 		}
 

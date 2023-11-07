@@ -100,7 +100,7 @@ void dae::Renderer::RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio
 	rayDir.Normalize();
 
 	// Shoot ray from camera in pixel direction
-	Ray ray{ camera.origin, rayDir };
+	const Ray ray{ camera.origin, rayDir };
 
 	HitRecord closestHit{};
 	pScene->GetClosestHit(ray, closestHit);
@@ -110,9 +110,9 @@ void dae::Renderer::RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio
 		for (const Light& light : pScene->GetLights())
 		{
 			Vector3 dirToLight{ LightUtils::GetDirectionToLight(light, closestHit.origin) };
-			float distToLight{ dirToLight.Normalize() };
+			const float distToLight{ dirToLight.Normalize() };
 
-			float observedArea{ Vector3::Dot(closestHit.normal, dirToLight) };
+			const float observedArea{ Vector3::Dot(closestHit.normal, dirToLight) };
 			if (observedArea <= 0.f) continue;
 
 
