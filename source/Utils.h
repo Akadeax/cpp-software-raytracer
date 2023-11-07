@@ -13,16 +13,18 @@ namespace dae
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
 			// Coefficients of the Quadratic Equation
-			float a{ Vector3::Dot(ray.direction, ray.direction) };
-			Vector3 sphereToRay{ ray.origin - sphere.origin };
-			float b{ Vector3::Dot(2.f * ray.direction, sphereToRay) };
-			float c{ Vector3::Dot(sphereToRay, sphereToRay) - sphere.radius * sphere.radius };
+			const Vector3 sphereToRay{ ray.origin - sphere.origin };
+			const float b{ Vector3::Dot(ray.direction, sphereToRay) };
+			const float hypotenuseSqr{ sphereToRay.SqrMagnitude() };
+			const float c{ hypotenuseSqr - sphere.radius * sphere.radius};
 
-			float discriminant{ b * b - 4 * a * c };
+			if (-hypotenuseSqr >= sphere.radius * sphere.radius) return false;
+
+			const float discriminant{ b * b - c };
 
 			if (discriminant <= 0) return false;
 
-			float t{ (-1 * b - sqrtf(discriminant)) / 2 * a };
+			const float t{ (-b - sqrtf(discriminant)) };
 
 			if (t <= ray.min || t > ray.max) return false;
 			if (ignoreHitRecord) return true;
@@ -33,6 +35,37 @@ namespace dae
 			hitRecord.normal = (hitRecord.origin - sphere.origin).Normalized();
 			hitRecord.materialIndex = sphere.materialIndex;
 			return true;
+
+			/*
+			 * const Vector3 rayOriginToSphereOrigin{ sphere.origin - ray.origin };
+			const float hypotenuseSquared{ rayOriginToSphereOrigin.SqrMagnitude() };
+			const float side1{ Vector3::Dot(rayOriginToSphereOrigin, ray.direction) };
+
+			const float distanceToRaySquared = hypotenuseSquared - side1 * side1;
+
+			//if the distance to the ray is larger than the radius there will be no results
+			//    also if equal because that is the exact border of the circle
+			if (distanceToRaySquared >= sphere.radius * sphere.radius) {
+				return false;
+			}
+
+			const float distanceRaypointToIntersect = sqrt(sphere.radius * sphere.radius - distanceToRaySquared);
+			const float t = side1 - distanceRaypointToIntersect;
+
+			if (t < ray.min || t > ray.max) {
+				return false;
+			}
+
+			hitRecord.didHit = true;
+			if (ignoreHitRecord) {
+				return true;
+			}
+			hitRecord.materialIndex = sphere.materialIndex;
+			hitRecord.t = t;
+			hitRecord.origin = ray.origin + t * ray.direction;
+			hitRecord.normal = Vector3(sphere.origin, hitRecord.origin) / sphere.radius;
+			return true;
+			 */
 		}
 
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray)
@@ -171,7 +204,7 @@ namespace dae
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray)
 		{
 			HitRecord temp{};
-			return HitTest_Triangle(triangle, ray, temp, true);
+			return HitTest_TriangleMoellerTrumbore(triangle, ray, temp, true);
 		}
 
 		inline bool SlabTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray)

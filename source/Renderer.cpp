@@ -26,7 +26,7 @@ Renderer::Renderer(SDL_Window * pWindow) :
 	m_pBufferPixels = static_cast<uint32_t*>(m_pBuffer->pixels);
 
 #ifdef PARALLEL_EXECUTION
-	int pixelCount{ m_Width * m_Height };
+	const int pixelCount{ m_Width * m_Height };
 	m_PixelIndices.reserve(pixelCount);
 	for (int i{ 0 }; i < pixelCount; ++i)
 	{
@@ -66,35 +66,35 @@ bool Renderer::SaveBufferToImage() const
 
 void dae::Renderer::CycleLightingMode()
 {
-	int current{ static_cast<int>(m_CurrentLightingMode) };
-	int max{ static_cast<int>(LightingMode::Combined) };
+	const int current{ static_cast<int>(m_CurrentLightingMode) };
+	const int max{ static_cast<int>(LightingMode::Combined) };
 
 	m_CurrentLightingMode = static_cast<LightingMode>((current + 1) % (max + 1));
 }
 
 void dae::Renderer::CycleToneMapping()
 {
-	int current{ static_cast<int>(m_CurrentToneMapping) };
-	int max{ static_cast<int>(ToneMapping::Hable) };
+	const int current{ static_cast<int>(m_CurrentToneMapping) };
+	const int max{ static_cast<int>(ToneMapping::Hable) };
 
 	m_CurrentToneMapping = static_cast<ToneMapping>((current + 1) % (max + 1));
 }
 
 void dae::Renderer::RenderPixel(Scene* pScene, int pixelIndex, float aspectRatio, float fov)
 {
-	Camera& camera = pScene->GetCamera();
-	auto& materials = pScene->GetMaterials();
-	auto& lights = pScene->GetLights();
+	const Camera& camera{ pScene->GetCamera() };
+	auto& materials{ pScene->GetMaterials() };
+	auto& lights{ pScene->GetLights() };
 
 	ColorRGB finalColor{ };
 
-	int px{ pixelIndex % m_Width };
-	int py{ pixelIndex / m_Width };
+	const int px{ pixelIndex % m_Width };
+	const int py{ pixelIndex / m_Width };
 
 	// Scale x value for pixel to be in [-aspectRatio; aspectRatio]
-	float cameraX{ (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * fov };
+	const float cameraX{ (2 * (px + 0.5f) / m_Width - 1) * aspectRatio * fov };
 	// Scale y value for pixel to be in [-1; 1]
-	float cameraY{ (1 - (2 * (py + 0.5f) / m_Height)) * fov };
+	const float cameraY{ (1 - (2 * (py + 0.5f) / m_Height)) * fov };
 
 	Vector3 rayDir{ camera.forward + (camera.right * cameraX) + (camera.up * cameraY) };
 	rayDir.Normalize();
